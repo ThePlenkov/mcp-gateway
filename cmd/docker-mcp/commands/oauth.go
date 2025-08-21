@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/docker/mcp-gateway/cmd/docker-mcp/oauth"
@@ -14,6 +16,8 @@ func oauthCommand() *cobra.Command {
 	cmd.AddCommand(lsOauthCommand())
 	cmd.AddCommand(authorizeOauthCommand())
 	cmd.AddCommand(revokeOauthCommand())
+	cmd.AddCommand(oauthClientCommand())
+	cmd.AddCommand(oauth.FlowCommand())
 	return cmd
 }
 
@@ -39,10 +43,24 @@ func authorizeOauthCommand() *cobra.Command {
 		Scopes string
 	}
 	cmd := &cobra.Command{
-		Use:   "authorize <app>",
-		Short: "Authorize the specified OAuth app.",
+		Use:   "authorize <client_id>",
+		Short: "Authorize using a registered OAuth client",
+		Long: `Authorize using a registered OAuth client from dynamic client registration.
+		
+First register a client:
+  docker mcp oauth client register --endpoint https://mcp.notion.com/mcp/oauth/register --name "My Client"
+
+Then authorize:
+  docker mcp oauth authorize <client_id>`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Check if it's a client ID (starts with mcp_ or contains underscore)
+			clientID := args[0]
+			if strings.Contains(clientID, "_") || strings.HasPrefix(clientID, "mcp") {
+				// Use new client-based flow
+				return oauth.AuthorizeClient(cmd.Context(), clientID)
+			}
+			// Fall back to old flow for backwards compatibility
 			return oauth.Authorize(cmd.Context(), args[0], opts.Scopes)
 		},
 	}

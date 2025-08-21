@@ -13,17 +13,18 @@ type topLevel struct {
 // MCP Servers
 
 type Server struct {
-	Image          string   `yaml:"image" json:"image"`
-	LongLived      bool     `yaml:"longLived,omitempty" json:"longLived,omitempty"`
-	Remote         Remote   `yaml:"remote,omitempty" json:"remote,omitempty"`
-	SSEEndpoint    string   `yaml:"sseEndpoint,omitempty" json:"sseEndpoint,omitempty"` // Deprecated: Use Remote instead
-	Secrets        []Secret `yaml:"secrets,omitempty" json:"secrets,omitempty"`
-	Env            []Env    `yaml:"env,omitempty" json:"env,omitempty"`
-	Command        []string `yaml:"command,omitempty" json:"command,omitempty"`
-	Volumes        []string `yaml:"volumes,omitempty" json:"volumes,omitempty"`
-	DisableNetwork bool     `yaml:"disableNetwork,omitempty" json:"disableNetwork,omitempty"`
-	AllowHosts     []string `yaml:"allowHosts,omitempty" json:"allowHosts,omitempty"`
-	Tools          []Tool   `yaml:"tools,omitempty" json:"tools,omitempty"`
+	Image          string                 `yaml:"image" json:"image"`
+	LongLived      bool                   `yaml:"longLived,omitempty" json:"longLived,omitempty"`
+	Remote         Remote                 `yaml:"remote,omitempty" json:"remote,omitempty"`
+	SSEEndpoint    string                 `yaml:"sseEndpoint,omitempty" json:"sseEndpoint,omitempty"` // Deprecated: Use Remote instead
+	OAuth          map[string]interface{} `yaml:"oauth,omitempty" json:"oauth,omitempty"`
+	Secrets        []Secret               `yaml:"secrets,omitempty" json:"secrets,omitempty"`
+	Env            []Env                  `yaml:"env,omitempty" json:"env,omitempty"`
+	Command        []string               `yaml:"command,omitempty" json:"command,omitempty"`
+	Volumes        []string               `yaml:"volumes,omitempty" json:"volumes,omitempty"`
+	DisableNetwork bool                   `yaml:"disableNetwork,omitempty" json:"disableNetwork,omitempty"`
+	AllowHosts     []string               `yaml:"allowHosts,omitempty" json:"allowHosts,omitempty"`
+	Tools          []Tool                 `yaml:"tools,omitempty" json:"tools,omitempty"`
 }
 
 type Secret struct {
