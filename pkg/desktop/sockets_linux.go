@@ -21,13 +21,25 @@ func getDockerDesktopPaths() (DockerDesktopPaths, error) {
 			return DockerDesktopPaths{}, err
 		}
 
-		// On Linux
+		// On Linux: prefer Desktop backend socket exposed under /var/run if present (WSL/Docker Desktop exposes
+		// a socket like /var/run/docker-cli.sock). Otherwise fall back to the per-user ~/.docker/desktop paths.
+		// This makes the client work b		curl --unix-socket /var/run/docker-cli.sock http://localhost/app/settings | jq .etter in WSL where Desktop may expose sockets in /var/run.
+		candidateBackend := filepath.Join(home, ".docker/desktop/backend.sock")
+		candidateRaw := filepath.Join(home, ".docker/desktop/docker.raw.sock")
+		candidateJFS := filepath.Join(home, ".docker/desktop/jfs.sock")
+		candidateTools := filepath.Join(home, ".docker/desktop/tools.sock")
+
+		// Prefer /var/run/docker-cli.sock when available (observed on Docker Desktop WSL integration)
+		if _, err := os.Stat("/var/run/docker-cli.sock"); err == nil {
+			candidateBackend = "/var/run/docker-cli.sock"
+		}
+
 		return DockerDesktopPaths{
 			AdminSettingPath:     "/usr/share/docker-desktop/admin-settings.json",
-			BackendSocket:        filepath.Join(home, ".docker/desktop/backend.sock"),
-			RawDockerSocket:      filepath.Join(home, ".docker/desktop/docker.raw.sock"),
-			JFSSocket:            filepath.Join(home, ".docker/desktop/jfs.sock"),
-			ToolsSocket:          filepath.Join(home, ".docker/desktop/tools.sock"),
+			BackendSocket:        candidateBackend,
+			RawDockerSocket:      candidateRaw,
+			JFSSocket:            candidateJFS,
+			ToolsSocket:          candidateTools,
 			CredentialHelperPath: getCredentialHelperPath,
 		}, nil
 	}
